@@ -407,17 +407,21 @@ macro(cmu_configure)
   endif()
 
   if(CMU_IPO)
-    include(CheckIPOSupported)
-    check_ipo_supported(RESULT CMU_IPO)
+    find_package(CheckIPOSupported QUIET)
+    if(CheckIPOSupported_FOUND)
+      check_ipo_supported(RESULT CMU_IPO)
+    else()
+      unset(CMU_IPO)
+    endif()
   endif()
 
   cmu_configure_preferred_linkers(${CMU_PREFERRED_LINKERS})
 
-  if(CMU_PIC)
-    set(CMAKE_POSITION_INDEPENDENT_CODE True)
-  else()
-    set(CMAKE_POSITION_INDEPENDENT_CODE False)
-  endif()
+  # if(CMU_PIC)
+  #   set(CMAKE_POSITION_INDEPENDENT_CODE True)
+  # else()
+  #   set(CMAKE_POSITION_INDEPENDENT_CODE False)
+  # endif()
 
   cmu_enable_sanitizers(${CMU_SANITIZERS})
 

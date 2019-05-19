@@ -44,10 +44,6 @@
 # - CMU_COMP_UNKNOWN
 # - CMU_COMP_ZAPCC
 #
-# Compiler Features:
-# - CMU_HAVE_ASAN
-# - CMU_HAVE_UBSAN
-#
 # Endianess:
 # - CMU_LITTLE_ENDIAN
 # - CMU_BIG_ENDIAN
