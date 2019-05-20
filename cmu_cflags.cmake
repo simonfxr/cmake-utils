@@ -1,6 +1,6 @@
-if(COMMAND include_guard)
-  include_guard(GLOBAL)
-endif()
+# if(COMMAND include_guard)
+#   include_guard(GLOBAL)
+# endif()
 
 if(CMU_BUILD_OPT)
   set(CMU_OPT_LEVEL 2)

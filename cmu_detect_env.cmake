@@ -54,9 +54,9 @@
 # - CMU_LANG_C
 # - CMU_LANG_CXX
 
-if(COMMAND include_guard)
-  include_guard(GLOBAL)
-endif()
+# if(COMMAND include_guard)
+#   include_guard(GLOBAL)
+# endif()
 
 set(CMU_SIZEOF_VOID_P "${CMAKE_SIZEOF_VOID_P}")
 
@@ -237,11 +237,10 @@ elseif(comp_name MATCHES "icp?c" OR comp_id STREQUAL "Intel")
   set(CMU_COMP_INTEL True)
   set(CMU_COMP_GNUC True)
   if(NOT comp_version)
-    #FIXME: detect __GNUC__, __GNUC_MINOR__...
     message(FATAL_ERROR "Failed to detect intel compiler version")
   endif()
   set(CMU_COMP_INTEL_VERSION "${comp_version}")
-  # set(CMU_COMP_GNUC_VERSION 4.2.1)
+  #FIXME: detect __GNUC__, __GNUC_MINOR__...
 elseif(comp_id STREQUAL "GNU")
   set(CMU_COMP_GCC True)
   set(CMU_COMP_GNUC True)

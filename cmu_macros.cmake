@@ -1,6 +1,6 @@
-if(COMMAND include_guard)
-  include_guard(GLOBAL)
-endif()
+# if(COMMAND include_guard)
+#   include_guard(GLOBAL)
+# endif()
 
 macro(cmu_target_link_options target mode)
   if(COMMAND target_link_options)
