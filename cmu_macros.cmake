@@ -159,7 +159,7 @@ macro(cmu_check_compiler_flag flag var)
   endif()
 endmacro()
 
-macro(cmu_add_flag_if_available
+macro(cmu_add_flag_if_supported
       flag
       var
       list)

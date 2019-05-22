@@ -3,7 +3,7 @@
 # endif()
 
 if(CMU_BUILD_OPT)
-  set(CMU_OPT_LEVEL 2)
+  set(CMU_OPT_LEVEL 3)
   set(CMU_OPT_NATIVE True)
   set(CMU_IPO True)
 else()
@@ -12,7 +12,7 @@ else()
   set(CMU_IPO False)
 endif()
 
-set(CMU_PREFERRED_LINKERS lld gold)
+set(CMU_PREFERRED_LINKERS lld gold bfd)
 set(CMU_PIC True)
 set(CMU_SANITIZERS)
 set(CMU_WARN_LEVEL 4)
@@ -28,6 +28,8 @@ set(CMU_EAGER_LOADING True)
 set(CMU_STRICT_LINKING True)
 set(CMU_RELRO True)
 set(CMU_CFI True)
+set(CMU_MSVC_COMPLIANT True)
+set(CMU_COVERAGE False)
 
 set(CMU_GLIBCXX_SANITIZE_VECTOR False)
 set(CMU_GLIBCXX_DEBUG False)
@@ -55,6 +57,7 @@ set(CMU_FLAGS_O0)
 set(CMU_FLAGS_O1)
 set(CMU_FLAGS_O2)
 set(CMU_FLAGS_O3)
+set(CMU_FLAGS_O4)
 set(CMU_FLAGS_OPT_NATIVE)
 
 set(CMU_FLAGS_FP_IEEE)
@@ -78,6 +81,8 @@ set(CMU_FLAGS_W3)
 set(CMU_FLAGS_W4)
 set(CMU_FLAGS_WARN_DATE_TIME)
 
+set(CMU_FLAGS_MSVC_COMPLIANT)
+
 if(CMU_COMP_MSVC)
 
   set(CMU_FLAGS_O1 /O)
@@ -95,16 +100,31 @@ if(CMU_COMP_MSVC)
   set(CMU_FLAGS_W3 /W3)
   set(CMU_FLAGS_W4 /W4)
 
+  cmu_add_flag_if_supported("/Zc:__cplusplus" CMU_MSVC_ZC_CPLUSPLUS
+                            CMU_FLAGS_MSVC_COMPLIANT)
+  cmu_add_flag_if_supported("/permissive-" CMU_MSVC_PERMISSIVE_MINUS
+                            CMU_FLAGS_MSVC_COMPLIANT)
+
 elseif(CMU_COMP_GNUC)
   set(CMU_FLAGS_O1 -O1)
   set(CMU_FLAGS_O2 -O2)
   set(CMU_FLAGS_O3 -O3)
+  set(CMU_FLAGS_O4 -O3)
 
-  cmu_add_flag_if_available("-march=native" CMU_HAVE_MARCH_NATIVE
+  cmu_add_flag_if_supported("-march=native" CMU_HAVE_MARCH_NATIVE
                             CMU_FLAGS_OPT_NATIVE)
 
-  cmu_add_flag_if_available("-fcf-protection" CMU_HAVE_CF_PROTECTION
+  cmu_add_flag_if_supported("-fcf-protection" CMU_HAVE_CF_PROTECTION
                             CMU_FLAGS_CFI)
+
+  cmu_add_flag_if_supported("-fipa-pta" CMU_HAVE_IPA_PTA CMU_FLAGS_O4)
+
+  if(CMU_COMP_CLANG)
+    set(CMU_FLAGS_COVERAGE -fprofile-instr-generate -fcoverage-mapping)
+  else()
+    cmu_add_flag_if_supported("--coverage" CMU_HAVE_COVERAGE_FLAG
+                              CMU_FLAGS_COVERAGE)
+  endif()
 
   if(CMU_OS_POSIX)
     set(CMU_FLAGS_STRICT_LINKING "-Wl,-z,defs")
@@ -125,11 +145,11 @@ elseif(CMU_COMP_GNUC)
   endif()
 
   set(CMU_FLAGS_FP_IEEE)
-  cmu_add_flag_if_available("-fexcess-precision=standard"
+  cmu_add_flag_if_supported("-fexcess-precision=standard"
                             CMU_HAVE_FP_NO_EXCESS_PRECISION CMU_FLAGS_FP_IEEE)
-  cmu_add_flag_if_available("-fno-fast-math" CMU_HAVE_FNO_FAST_MATH
+  cmu_add_flag_if_supported("-fno-fast-math" CMU_HAVE_FNO_FAST_MATH
                             CMU_FLAGS_FP_IEEE)
-  cmu_add_flag_if_available("-ffp-contract=off" CMU_HAVE_FNO_FFP_CONTRACT
+  cmu_add_flag_if_supported("-ffp-contract=off" CMU_HAVE_FNO_FFP_CONTRACT
                             CMU_FLAGS_FP_IEEE)
 
   set(CMU_FLAGS_FP_FAST
@@ -259,6 +279,10 @@ elseif(CMU_COMP_GNUC)
   set(CMU_FLAGS_W4 "${CMU_FLAGS_W3}")
 endif()
 
+if(NOT CMU_FLAGS_O4)
+  set(CMU_FLAGS_O4 "${CMU_FLAGS_O3}")
+endif()
+
 macro(cmu_replace_global_cmake_flags pat repl)
   set(types ${CMAKE_CONFIGURATION_TYPES})
   if(NOT types)
@@ -318,14 +342,14 @@ macro(cmu_enable_sanitizers)
   set(need_no_omit_fp False)
   foreach(san ${ARGV})
     if(san STREQUAL "asan")
-      cmu_add_flag_if_available(-fsanitize=address CMU_HAVE_ASAN CMU_FLAGS_BOTH)
+      cmu_add_flag_if_supported(-fsanitize=address CMU_HAVE_ASAN CMU_FLAGS_BOTH)
     elseif(san STREQUAL "ubsan")
-      cmu_add_flag_if_available(-fsanitize=undefined CMU_HAVE_UBSAN
+      cmu_add_flag_if_supported(-fsanitize=undefined CMU_HAVE_UBSAN
                                 CMU_FLAGS_BOTH)
     elseif(san STREQUAL "tsan")
-      cmu_add_flag_if_available(-fsanitize=thread CMU_HAVE_TSAN CMU_FLAGS_BOTH)
+      cmu_add_flag_if_supported(-fsanitize=thread CMU_HAVE_TSAN CMU_FLAGS_BOTH)
     elseif(san STREQUAL "lsan")
-      cmu_add_flag_if_available(-fsanitize=leak CMU_HAVE_LSAN CMU_FLAGS_BOTH)
+      cmu_add_flag_if_supported(-fsanitize=leak CMU_HAVE_LSAN CMU_FLAGS_BOTH)
     else()
       message(WARNING "unknown sanitizer: \"${san}\"")
     endif()
@@ -371,7 +395,7 @@ macro(cmu_configure_preferred_linkers)
       list(APPEND CMU_LINK_FLAGS "-fuse-ld=${ld}")
       set(CMU_LINKER ${ld})
     elseif(NOT CMU_LINKER AND CMU_COMP_GNUC)
-      cmu_add_flag_if_available("-fuse-ld=${ld}" "CMU_HAVE_LD_${ld}"
+      cmu_add_flag_if_supported("-fuse-ld=${ld}" "CMU_HAVE_LD_${ld}"
                                 CMU_LINK_FLAGS)
       if(CMU_HAVE_LD_${ld})
         set(CMU_LINKER ${ld})
@@ -471,17 +495,25 @@ macro(cmu_configure)
 
   if(CMU_STACK_PROTECTION)
     if(CMU_COMP_GNUC)
-      cmu_add_flag_if_available("-fstack-protector-strong"
+      cmu_add_flag_if_supported("-fstack-protector-strong"
                                 CMU_HAVE_STACK_PROTECTOR_STRONG CMU_FLAGS)
 
       if(NOT CMU_HAVE_STACK_PROTECTOR_STRONG)
-        cmu_add_flag_if_available("-fstack-protector" CMU_HAVE_STACK_PROTECTOR
+        cmu_add_flag_if_supported("-fstack-protector" CMU_HAVE_STACK_PROTECTOR
                                   CMU_FLAGS)
       endif()
 
-      cmu_add_flag_if_available("-fstack-clash-protection"
+      cmu_add_flag_if_supported("-fstack-clash-protection"
                                 CMU_HAVE_STACK_CLASH_PROTECTION CMU_FLAGS)
     endif()
+  endif()
+
+  if(CMU_MSVC_COMPLIANT)
+    list(APPEND CMU_FLAGS ${CMU_FLAGS_MSVC_COMPLIANT})
+  endif()
+
+  if(CMU_COVERAGE)
+    list(APPEND CMU_FLAGS_BOTH ${CMU_FLAGS_COVERAGE})
   endif()
 
   if(CMU_CXX_STDLIB STREQUAL "libstdc++")
