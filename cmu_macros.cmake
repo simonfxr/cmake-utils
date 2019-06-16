@@ -18,7 +18,7 @@ macro(cmu_configure_target target)
                           ${CMU_LINK_FLAGS}
                           ${CMU_FLAGS_BOTH})
   target_link_libraries(${target} PUBLIC ${ARGN})
-  if(CMU_IPO)
+  if(CMU_HAVE_IPO AND CMU_IPO)
     set_property(TARGET ${target} PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
   endif()
   if(CMU_CXX_FLAGS)

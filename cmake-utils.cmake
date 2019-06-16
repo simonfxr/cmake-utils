@@ -2,6 +2,9 @@
 #   include_guard(GLOBAL)
 # endif()
 
-include("${CMAKE_CURRENT_LIST_DIR}/cmu_detect_env.cmake")
-include("${CMAKE_CURRENT_LIST_DIR}/cmu_macros.cmake")
-include("${CMAKE_CURRENT_LIST_DIR}/cmu_cflags.cmake")
+if(NOT CMAKE_UTILS_INCLUDED)
+  set(CMAKE_UTILS_INCLUDED 1)
+  include("${CMAKE_CURRENT_LIST_DIR}/cmu_detect_env.cmake")
+  include("${CMAKE_CURRENT_LIST_DIR}/cmu_macros.cmake")
+  include("${CMAKE_CURRENT_LIST_DIR}/cmu_cflags.cmake")
+endif()
