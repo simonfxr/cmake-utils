@@ -155,6 +155,11 @@ elseif(CMU_COMP_GNUC)
   cmu_add_flag_if_supported("-ffp-contract=off" CMU_HAVE_FNO_FFP_CONTRACT
                             CMU_FLAGS_FP_IEEE)
 
+  if(CMU_ARCH_X86)
+    cmu_add_flag_if_supported("-mfpmath=sse" CMU_HAVE_FPMATH_SSE
+                              CMU_FLAGS_FP_IEEE)
+  endif()
+
   set(CMU_FLAGS_FP_FAST
       -ffp-contract=fast
       -fno-math-errno
