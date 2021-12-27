@@ -12,7 +12,7 @@ else()
   set(CMU_IPO False)
 endif()
 
-set(CMU_PREFERRED_LINKERS lld gold bfd)
+set(CMU_PREFERRED_LINKERS mold lld gold bfd)
 set(CMU_PIC True)
 set(CMU_SANITIZERS)
 set(CMU_WARN_LEVEL 4)
@@ -79,7 +79,20 @@ set(CMU_FLAGS_W1)
 set(CMU_FLAGS_W2)
 set(CMU_FLAGS_W3)
 set(CMU_FLAGS_W4)
+
 set(CMU_FLAGS_WARN_DATE_TIME)
+
+set(CMU_FLAGS_C_W0)
+set(CMU_FLAGS_C_W1)
+set(CMU_FLAGS_C_W2)
+set(CMU_FLAGS_C_W3)
+set(CMU_FLAGS_C_W4)
+
+set(CMU_FLAGS_CXX_W0)
+set(CMU_FLAGS_CXX_W1)
+set(CMU_FLAGS_CXX_W2)
+set(CMU_FLAGS_CXX_W3)
+set(CMU_FLAGS_CXX_W4)
 
 set(CMU_FLAGS_MSVC_COMPLIANT)
 
@@ -100,10 +113,14 @@ if(CMU_COMP_MSVC)
   set(CMU_FLAGS_W3 /W3)
   set(CMU_FLAGS_W4 /W4)
 
-  cmu_add_flag_if_supported("/Zc:__cplusplus" CMU_MSVC_ZC_CPLUSPLUS
-                            CMU_FLAGS_MSVC_COMPLIANT)
-  cmu_add_flag_if_supported("/permissive-" CMU_MSVC_PERMISSIVE_MINUS
-                            CMU_FLAGS_MSVC_COMPLIANT)
+  cmu_add_flag_if_supported(
+    "/Zc:__cplusplus" CMU_MSVC_ZC_CPLUSPLUS
+    CMU_FLAGS_MSVC_COMPLIANT
+  )
+  cmu_add_flag_if_supported(
+    "/permissive-" CMU_MSVC_PERMISSIVE_MINUS
+    CMU_FLAGS_MSVC_COMPLIANT
+  )
 
 elseif(CMU_COMP_GNUC)
   set(CMU_FLAGS_O1 -O1)
@@ -111,19 +128,25 @@ elseif(CMU_COMP_GNUC)
   set(CMU_FLAGS_O3 -O3)
   set(CMU_FLAGS_O4 -O3)
 
-  cmu_add_flag_if_supported("-march=native" CMU_HAVE_MARCH_NATIVE
-                            CMU_FLAGS_OPT_NATIVE)
+  cmu_add_flag_if_supported(
+    "-march=native" CMU_HAVE_MARCH_NATIVE
+    CMU_FLAGS_OPT_NATIVE
+  )
 
-  cmu_add_flag_if_supported("-fcf-protection" CMU_HAVE_CF_PROTECTION
-                            CMU_FLAGS_CFI)
+  cmu_add_flag_if_supported(
+    "-fcf-protection" CMU_HAVE_CF_PROTECTION
+    CMU_FLAGS_CFI
+  )
 
   cmu_add_flag_if_supported("-fipa-pta" CMU_HAVE_IPA_PTA CMU_FLAGS_O4)
 
   if(CMU_COMP_CLANG)
     set(CMU_FLAGS_COVERAGE -fprofile-instr-generate -fcoverage-mapping)
   else()
-    cmu_add_flag_if_supported("--coverage" CMU_HAVE_COVERAGE_FLAG
-                              CMU_FLAGS_COVERAGE)
+    cmu_add_flag_if_supported(
+      "--coverage" CMU_HAVE_COVERAGE_FLAG
+      CMU_FLAGS_COVERAGE
+    )
   endif()
 
   if(CMU_OS_POSIX)
@@ -148,33 +171,45 @@ elseif(CMU_COMP_GNUC)
     endif()
   endif()
 
-  cmu_add_flag_if_supported("-fexcess-precision=standard"
-                            CMU_HAVE_FP_NO_EXCESS_PRECISION CMU_FLAGS_FP_IEEE)
-  cmu_add_flag_if_supported("-fno-fast-math" CMU_HAVE_FNO_FAST_MATH
-                            CMU_FLAGS_FP_IEEE)
-  cmu_add_flag_if_supported("-ffp-contract=off" CMU_HAVE_FNO_FFP_CONTRACT
-                            CMU_FLAGS_FP_IEEE)
+  cmu_add_flag_if_supported(
+    "-fexcess-precision=standard"
+    CMU_HAVE_FP_NO_EXCESS_PRECISION CMU_FLAGS_FP_IEEE
+  )
+  cmu_add_flag_if_supported(
+    "-fno-fast-math" CMU_HAVE_FNO_FAST_MATH
+    CMU_FLAGS_FP_IEEE
+  )
+  cmu_add_flag_if_supported(
+    "-ffp-contract=off" CMU_HAVE_FNO_FFP_CONTRACT
+    CMU_FLAGS_FP_IEEE
+  )
 
   if(CMU_ARCH_X86)
-    cmu_add_flag_if_supported("-mfpmath=sse" CMU_HAVE_FPMATH_SSE
-                              CMU_FLAGS_FP_IEEE)
+    cmu_add_flag_if_supported(
+      "-mfpmath=sse" CMU_HAVE_FPMATH_SSE
+      CMU_FLAGS_FP_IEEE
+    )
   endif()
 
-  set(CMU_FLAGS_FP_FAST
-      -ffp-contract=fast
-      -fno-math-errno
-      -fexcess-precision=fast
-      -fcx-limited-range
-      -fno-trapping-math)
+  set(
+    CMU_FLAGS_FP_FAST
+    -ffp-contract=fast
+    -fno-math-errno
+    -fexcess-precision=fast
+    -fcx-limited-range
+    -fno-trapping-math
+  )
   set(CMU_FLAGS_FP_ASSOC ${CMU_FLAGS_FP_FAST} -funsafe-math-optimizations)
   set(CMU_FLAGS_FP_FINITE -ffast-math)
 
   set(CMU_FLAGS_NO_EXCEPTIONS "-fno-exceptions")
   set(CMU_FLAGS_NO_RTTI "-fno-rtti")
 
-  set(CMU_FLAGS_W1 -Wall -Werror=return-type
-                   -Werror=implicit-function-declaration)
+  set(CMU_FLAGS_W1 -Wall -Werror=return-type)
+  set(CMU_FLAGS_C_W1 -Werror=implicit-function-declaration)
+
   set(CMU_FLAGS_W2 ${CMU_FLAGS_W1} -Wextra)
+  set(CMU_FLAGS_C_W2 ${CMU_FLAGS_C_W1})
 
   cmu_check_compiler_flag("-Wdate-time" CMU_HAVE_WARN_DATE_TIME)
   if(CMU_HAVE_WARN_DATE_TIME)
@@ -186,105 +221,119 @@ elseif(CMU_COMP_GNUC)
   endif()
 
   set(CMU_FLAGS_W3 ${CMU_FLAGS_W2} -Wswitch)
+  set(CMU_FLAGS_C_W3 ${CMU_FLAGS_C_W2})
 
   if(CMU_COMP_GCC)
-    list(APPEND CMU_FLAGS_W3
-                -Wcast-align
-                -Wcast-qual
-                -Wchar-subscripts
-                -Wcomment
-                -Wdisabled-optimization
-                -Wformat
-                -Wformat-nonliteral
-                -Wformat-security
-                -Wformat-y2k
-                -Wformat=2
-                -Wimport
-                -Winit-self
-                -Winline
-                -Winvalid-pch
-                -Wmissing-field-initializers
-                -Wmissing-format-attribute
-                -Wmissing-include-dirs
-                -Wmissing-noreturn
-                -Wparentheses
-                -Wpointer-arith
-                -Wredundant-decls
-                -Wreturn-type
-                -Wsequence-point
-                -Wsign-compare
-                -Wstack-protector
-                -Wstrict-aliasing
-                -Wswitch
-                -Wswitch-enum
-                -Wtrigraphs
-                -Wuninitialized
-                -Wunknown-pragmas
-                -Wunreachable-code
-                -Wunsafe-loop-optimizations
-                -Wunused
-                -Wunused-function
-                -Wunused-label
-                -Wunused-parameter
-                -Wunused-value
-                -Wunused-variable
-                -Wvariadic-macros
-                -Wvolatile-register-var
-                -Wwrite-strings)
+    list(
+      APPEND CMU_FLAGS_W3
+      -Wcast-align
+      -Wcast-qual
+      -Wchar-subscripts
+      -Wcomment
+      -Wdisabled-optimization
+      -Wformat
+      -Wformat-nonliteral
+      -Wformat-security
+      -Wformat-y2k
+      -Wformat=2
+      -Wimport
+      -Winit-self
+      -Winline
+      -Winvalid-pch
+      -Wmissing-field-initializers
+      -Wmissing-format-attribute
+      -Wmissing-include-dirs
+      -Wmissing-noreturn
+      -Wparentheses
+      -Wpointer-arith
+      -Wredundant-decls
+      -Wreturn-type
+      -Wsequence-point
+      -Wsign-compare
+      -Wstack-protector
+      -Wstrict-aliasing
+      -Wswitch
+      -Wswitch-enum
+      -Wtrigraphs
+      -Wuninitialized
+      -Wunknown-pragmas
+      -Wunreachable-code
+      -Wunsafe-loop-optimizations
+      -Wunused
+      -Wunused-function
+      -Wunused-label
+      -Wunused-parameter
+      -Wunused-value
+      -Wunused-variable
+      -Wvariadic-macros
+      -Wvolatile-register-var
+      -Wwrite-strings
+    )
   elseif(CMU_COMP_INTEL)
-    list(APPEND CMU_FLAGS_W3
-                -Wcast-qual
-                -Wchar-subscripts
-                -Wcomment
-                -Wdisabled-optimization
-                -Wformat
-                -Wformat-security
-                -Wformat=2
-                -Winit-self
-                -Winline
-                -Winvalid-pch
-                -Wmissing-field-initializers
-                -Wmissing-include-dirs
-                -Wparentheses
-                -Wpointer-arith
-                -Wreturn-type
-                -Wsequence-point
-                -Wsign-compare
-                -Wstrict-aliasing
-                -Wswitch
-                -Wswitch-enum
-                -Wtrigraphs
-                -Wuninitialized
-                -Wunknown-pragmas
-                -Wunreachable-code
-                -Wunused
-                -Wunused-function
-                -Wunused-parameter
-                -Wunused-variable
-                -Wwrite-strings)
+    list(
+      APPEND CMU_FLAGS_W3
+      -Wcast-qual
+      -Wchar-subscripts
+      -Wcomment
+      -Wdisabled-optimization
+      -Wformat
+      -Wformat-security
+      -Wformat=2
+      -Winit-self
+      -Winline
+      -Winvalid-pch
+      -Wmissing-field-initializers
+      -Wmissing-include-dirs
+      -Wparentheses
+      -Wpointer-arith
+      -Wreturn-type
+      -Wsequence-point
+      -Wsign-compare
+      -Wstrict-aliasing
+      -Wswitch
+      -Wswitch-enum
+      -Wtrigraphs
+      -Wuninitialized
+      -Wunknown-pragmas
+      -Wunreachable-code
+      -Wunused
+      -Wunused-function
+      -Wunused-parameter
+      -Wunused-variable
+      -Wwrite-strings
+    )
   elseif(CMU_COMP_CLANG)
-    list(APPEND CMU_FLAGS_W3
-                -Weverything
-                -Wno-c++98-compat
-                -Wno-c++98-compat-pedantic
-                -Wno-conversion
-                -Wno-documentation
-                -Wno-documentation-unknown-command
-                -Wno-double-promotion
-                -Wno-float-equal
-                -Wno-gnu-anonymous-struct
-                -Wno-gnu-zero-variadic-macro-arguments
-                -Wno-missing-noreturn
-                -Wno-missing-prototypes
-                -Wno-nested-anon-types
-                -Wno-packed
-                -Wno-padded
-                -Wno-gnu-statement-expression
-                -Wno-assume
-                -Wno-disabled-macro-expansion
-                -Wno-return-std-move-in-c++11)
+    list(
+      APPEND CMU_FLAGS_W3
+      -Weverything
+      -Wno-c++98-compat
+      -Wno-c++98-compat-pedantic
+      -Wno-conversion
+      -Wno-documentation
+      -Wno-documentation-unknown-command
+      -Wno-double-promotion
+      -Wno-float-equal
+      -Wno-gnu-anonymous-struct
+      -Wno-gnu-zero-variadic-macro-arguments
+      -Wno-missing-noreturn
+      -Wno-missing-prototypes
+      -Wno-nested-anon-types
+      -Wno-packed
+      -Wno-padded
+      -Wno-gnu-statement-expression
+      -Wno-assume
+      -Wno-disabled-macro-expansion
+    )
+    list(
+      APPEND CMU_FLAGS_CXX_W3
+      -Wno-return-std-move-in-c++11
+      -Wno-unknown-warning-option
+      -Wno-shadow-field-in-constructor
+    )
   endif()
   set(CMU_FLAGS_W4 "${CMU_FLAGS_W3}")
+  set(CMU_FLAGS_C_W4 "${CMU_FLAGS_C_W3}")
+  set(CMU_FLAGS_CXX_W4 "${CMU_FLAGS_CXX_W3}")
 endif()
 
 if(NOT CMU_FLAGS_O4)
@@ -294,28 +343,34 @@ endif()
 macro(cmu_replace_global_cmake_flags pat repl)
   set(types ${CMAKE_CONFIGURATION_TYPES})
   if(NOT types)
-    set(types
-        DEBUG
-        RELEASE
-        RELWITHDEBINFO
-        MINSIZEREL)
+    set(
+      types
+      DEBUG
+      RELEASE
+      RELWITHDEBINFO
+      MINSIZEREL
+    )
   endif()
 
   foreach(ty "" ${types})
     if(ty)
       set(ty "_${ty}")
     endif()
-    foreach(pref
-            ""
-            _C_FLAGS
-            _CXX_FLAGS)
+    foreach(
+      pref
+      ""
+      _C_FLAGS
+      _CXX_FLAGS
+    )
       set(v "CMAKE${pref}${ty}")
       if(DEFINED "${v}")
-        string(REGEX
-               REPLACE "${pat}"
-                       "${repl}"
-                       "${v}"
-                       "${${v}}")
+        string(
+          REGEX
+          REPLACE "${pat}"
+          "${repl}"
+          "${v}"
+          "${${v}}"
+        )
       endif()
     endforeach()
   endforeach()
@@ -324,22 +379,26 @@ endmacro()
 macro(cmu_add_global_cmake_linker_flags)
   set(types ${CMAKE_CONFIGURATION_TYPES})
   if(NOT types)
-    set(types
-        DEBUG
-        RELEASE
-        RELWITHDEBINFO
-        MINSIZEREL)
+    set(
+      types
+      DEBUG
+      RELEASE
+      RELWITHDEBINFO
+      MINSIZEREL
+    )
   endif()
 
   foreach(ty "" ${types})
     if(ty)
       set(ty "_${ty}")
     endif()
-    foreach(kind
-            EXE
-            SHARED
-            STATIC
-            MODULE)
+    foreach(
+      kind
+      EXE
+      SHARED
+      STATIC
+      MODULE
+    )
       set(v "CMAKE_${kind}_LINKER_FLAGS${ty}")
       list(APPEND "${v}" ${ARGN})
     endforeach()
@@ -352,8 +411,10 @@ macro(cmu_enable_sanitizers)
     if(san STREQUAL "asan")
       cmu_add_flag_if_supported(-fsanitize=address CMU_HAVE_ASAN CMU_FLAGS_BOTH)
     elseif(san STREQUAL "ubsan")
-      cmu_add_flag_if_supported(-fsanitize=undefined CMU_HAVE_UBSAN
-                                CMU_FLAGS_BOTH)
+      cmu_add_flag_if_supported(
+        -fsanitize=undefined CMU_HAVE_UBSAN
+        CMU_FLAGS_BOTH
+      )
     elseif(san STREQUAL "tsan")
       cmu_add_flag_if_supported(-fsanitize=thread CMU_HAVE_TSAN CMU_FLAGS_BOTH)
     elseif(san STREQUAL "lsan")
@@ -370,21 +431,25 @@ endmacro()
 macro(cmu_add_global_cmake_flags flags)
   set(types ${CMAKE_CONFIGURATION_TYPES})
   if(NOT types)
-    set(types
-        DEBUG
-        RELEASE
-        RELWITHDEBINFO
-        MINSIZEREL)
+    set(
+      types
+      DEBUG
+      RELEASE
+      RELWITHDEBINFO
+      MINSIZEREL
+    )
   endif()
 
   foreach(ty "" ${types})
     if(ty)
       set(ty "_${ty}")
     endif()
-    foreach(pref
-            ""
-            _C_FLAGS
-            _CXX_FLAGS)
+    foreach(
+      pref
+      ""
+      _C_FLAGS
+      _CXX_FLAGS
+    )
       set(v "CMAKE${pref}${ty}")
       if(DEFINED ${v})
         set($v "${${v}} ${flags}")
@@ -397,14 +462,16 @@ endmacro()
 macro(cmu_configure_preferred_linkers)
   set(CMU_LINKER)
   foreach(ld ${ARGV})
-    if(NOT (ld MATCHES "^(gold|lld|bfd)$"))
+    if(NOT (ld MATCHES "^(gold|mold|lld|bfd)$"))
       message(WARNING "Ignoring unknown linker: ${ld}")
     elseif(NOT CMU_LINKER AND CMU_COMP_CLANG)
       list(APPEND CMU_LINK_FLAGS "-fuse-ld=${ld}")
       set(CMU_LINKER ${ld})
     elseif(NOT CMU_LINKER AND CMU_COMP_GNUC)
-      cmu_add_flag_if_supported("-fuse-ld=${ld}" "CMU_HAVE_LD_${ld}"
-                                CMU_LINK_FLAGS)
+      cmu_add_flag_if_supported(
+        "-fuse-ld=${ld}" "CMU_HAVE_LD_${ld}"
+        CMU_LINK_FLAGS
+      )
       if(CMU_HAVE_LD_${ld})
         set(CMU_LINKER ${ld})
       endif()
@@ -457,6 +524,8 @@ macro(cmu_configure)
   if(CMU_WARN_DATE_TIME)
     list(APPEND CMU_FLAGS ${CMU_FLAGS_WARN_DATE_TIME})
   endif()
+  list(APPEND CMU_C_FLAGS ${CMU_FLAGS_C_W${CMU_WARN_LEVEL}})
+  list(APPEND CMU_CXX_FLAGS ${CMU_FLAGS_CXX_W${CMU_WARN_LEVEL}})
 
   list(APPEND CMU_FLAGS ${CMU_FLAGS_FP_${CMU_FP_MODE}})
   if(CMU_LANG_CXX)
@@ -499,16 +568,22 @@ macro(cmu_configure)
 
   if(CMU_STACK_PROTECTION)
     if(CMU_COMP_GNUC)
-      cmu_add_flag_if_supported("-fstack-protector-strong"
-                                CMU_HAVE_STACK_PROTECTOR_STRONG CMU_FLAGS)
+      cmu_add_flag_if_supported(
+        "-fstack-protector-strong"
+        CMU_HAVE_STACK_PROTECTOR_STRONG CMU_FLAGS
+      )
 
       if(NOT CMU_HAVE_STACK_PROTECTOR_STRONG)
-        cmu_add_flag_if_supported("-fstack-protector" CMU_HAVE_STACK_PROTECTOR
-                                  CMU_FLAGS)
+        cmu_add_flag_if_supported(
+          "-fstack-protector" CMU_HAVE_STACK_PROTECTOR
+          CMU_FLAGS
+        )
       endif()
 
-      cmu_add_flag_if_supported("-fstack-clash-protection"
-                                CMU_HAVE_STACK_CLASH_PROTECTION CMU_FLAGS)
+      cmu_add_flag_if_supported(
+        "-fstack-clash-protection"
+        CMU_HAVE_STACK_CLASH_PROTECTION CMU_FLAGS
+      )
     endif()
   endif()
 
