@@ -13,6 +13,11 @@
 # (Pointer) Bitness:
 # - CMU_BITS_{16,32,64,128}
 #
+# Object formats:
+# - CMU_OBJFMT_ELF
+# - CMU_OBJFMT_COFF
+# - CMU_OBJFMT_MACHO
+#
 # OS Families:
 # - CMU_OS_POSIX
 # - CMU_OS_BSD
@@ -107,7 +112,7 @@ else()
   message(
     ERROR
     "Unsupported architecture: CMAKE_SYSTEM_PROCESSOR=${CMAKE_SYSTEM_PROCESSOR}"
-    )
+  )
 endif()
 
 if(NOT (CMU_LITTLE_ENDIAN OR CMU_BIG_ENDIAN))
@@ -126,9 +131,11 @@ endif()
 
 if(WIN32)
   set(CMU_OS_WINDOWS True)
+  set(CMU_OBJFMT_COFF True)
 elseif(Apple)
   set(CMU_OS_APPLE True)
   set(CMU_OS_POSIX True)
+  set(CMU_OBJFMT_MACHO True)
   if(CMAKE_SYSTEM_NAME STREQUAL "iOS" OR IOS)
     set(CMU_OS_IOS True)
   else()
@@ -168,6 +175,10 @@ else()
   set(CMU_OS_UNKNOWN True)
 endif()
 
+if(CMU_OS_POSIX AND NOT CMU_OBJFMT_MACHO)
+  set(CMU_OBJFMT_ELF True)
+endif()
+
 get_property(languages GLOBAL PROPERTY ENABLED_LANGUAGES)
 foreach(lang ${languages})
   if(lang STREQUAL "CXX")
@@ -193,9 +204,7 @@ endif()
 
 if(CMU_LANG_CXX AND CMU_LANG_C)
   if(NOT (CMAKE_C_COMPILER_ID STREQUAL CMAKE_CXX_COMPILER_ID))
-    cmu_error(
-      "C and C++ compilers inconsistent: ${CMAKE_C_COMPILER_ID} vs. ${CMAKE_CXX_COMPILER_ID}"
-      )
+    cmu_error("C and C++ compilers inconsistent: ${CMAKE_C_COMPILER_ID} vs. ${CMAKE_CXX_COMPILER_ID}")
   endif()
 endif()
 
@@ -289,12 +298,8 @@ endif()
 string(TOUPPER "${CMAKE_BUILD_TYPE}" CMU_BUILD_TYPE)
 
 if(CMU_BUILD_TYPE STREQUAL DEBUG)
-  set(CMU_BUILD_DEBUG True)
 elseif(CMU_BUILD_TYPE STREQUAL RELWITHDEBINFO)
-  set(CMU_BUILD_OPT True)
-  set(CMU_BUILD_DEBUG True)
 elseif(CMU_BUILD_TYPE STREQUAL RELEASE OR BUILD_TYPE STREQUAL MINSIZEREL)
-  set(CMU_BUILD_OPT True)
 else()
   cmu_warning("unknown build type: \"${CMAKE_BUILD_TYPE}\"")
 endif()
