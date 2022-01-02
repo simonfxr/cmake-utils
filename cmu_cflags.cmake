@@ -195,10 +195,14 @@ elseif(CMU_COMP_GNUC)
   )
 
   if(CMU_ARCH_X86)
-    cmu_add_flag_if_supported(
-      "-mfpmath=sse" CMU_HAVE_FPMATH_SSE
-      CMU_FLAGS_FP_IEEE
-    )
+    # When IEEE fp compliance is requested, SSE2 is implicitly enabled as
+    # well, for more info see here:
+    # https://gcc.gnu.org/wiki/FloatingPointMath#x86note
+    set(msse2)
+    if(CMU_BITS_32)
+      set(msse2 "-msse2;")
+    endif()
+    cmu_add_flag_if_supported("${msse2}-mfpmath=sse" CMU_HAVE_FPMATH_SSE CMU_FLAGS_FP_IEEE)
   endif()
 
   set(
