@@ -9,7 +9,7 @@ set(CMU_OPT_NATIVE False)
 set(CMU_IPO True)
 
 if(CMU_COMP_CLANG)
-  set(CMU_PREFERRED_LINKERS lld mold gold bfd)
+  set(CMU_PREFERRED_LINKERS mold lld gold bfd)
 else()
   set(CMU_PREFERRED_LINKERS)
 endif()
