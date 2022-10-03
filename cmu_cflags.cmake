@@ -341,6 +341,8 @@ elseif(CMU_COMP_GNUC)
       -Wno-gnu-statement-expression
       -Wno-assume
       -Wno-disabled-macro-expansion
+      -Wno-reserved-id-macro
+      -Wno-declaration-after-statement
     )
     list(
       APPEND CMU_FLAGS_CXX_W3
