@@ -1,6 +1,4 @@
-# if(COMMAND include_guard)
-#   include_guard(GLOBAL)
-# endif()
+# if(COMMAND include_guard) include_guard(GLOBAL) endif()
 
 cmake_minimum_required(VERSION 3.9)
 
@@ -121,14 +119,10 @@ if(CMU_COMP_MSVC)
   set(CMU_FLAGS_W3 /W3)
   set(CMU_FLAGS_W4 /W4)
 
-  cmu_add_flag_if_supported(
-    "/Zc:__cplusplus" CMU_MSVC_ZC_CPLUSPLUS
-    CMU_FLAGS_MSVC_COMPLIANT
-  )
-  cmu_add_flag_if_supported(
-    "/permissive-" CMU_MSVC_PERMISSIVE_MINUS
-    CMU_FLAGS_MSVC_COMPLIANT
-  )
+  cmu_add_flag_if_supported("/Zc:__cplusplus" CMU_MSVC_ZC_CPLUSPLUS
+                            CMU_FLAGS_MSVC_COMPLIANT)
+  cmu_add_flag_if_supported("/permissive-" CMU_MSVC_PERMISSIVE_MINUS
+                            CMU_FLAGS_MSVC_COMPLIANT)
 
 elseif(CMU_COMP_GNUC)
   set(CMU_FLAGS_O1 -O1)
@@ -136,27 +130,25 @@ elseif(CMU_COMP_GNUC)
   set(CMU_FLAGS_O3 -O3)
   set(CMU_FLAGS_O4 -O3)
 
-  cmu_add_flag_if_supported(
-    "-march=native" CMU_HAVE_MARCH_NATIVE
-    CMU_FLAGS_OPT_NATIVE
-  )
+  cmu_add_flag_if_supported("-march=native" CMU_HAVE_MARCH_NATIVE
+                            CMU_FLAGS_OPT_NATIVE)
 
-  cmu_add_flag_if_supported(
-    "-fcf-protection" CMU_HAVE_CF_PROTECTION
-    CMU_FLAGS_CFI
-  )
+  cmu_add_flag_if_supported("-fcf-protection" CMU_HAVE_CF_PROTECTION
+                            CMU_FLAGS_CFI)
 
   cmu_add_flag_if_supported("-fipa-pta" CMU_HAVE_IPA_PTA CMU_FLAGS_O4_LTO)
-  cmu_add_flag_if_supported("-fno-semantic-interposition" CMU_HAVE_NO_SEMANTIC_INTERPOSITION_PTA CMU_FLAGS_O4_LTO)
-  cmu_add_flag_if_supported("-fdevirtualize-at-ltrans" CMU_HAVE_DEVIRTUALIZE_AT_LTRANS CMU_FLAGS_DEVIRTUALIZE_AT_LTRANS)
+  cmu_add_flag_if_supported(
+    "-fno-semantic-interposition" CMU_HAVE_NO_SEMANTIC_INTERPOSITION_PTA
+    CMU_FLAGS_O4_LTO)
+  cmu_add_flag_if_supported(
+    "-fdevirtualize-at-ltrans" CMU_HAVE_DEVIRTUALIZE_AT_LTRANS
+    CMU_FLAGS_DEVIRTUALIZE_AT_LTRANS)
 
   if(CMU_COMP_CLANG)
     set(CMU_FLAGS_COVERAGE -fprofile-instr-generate -fcoverage-mapping)
   else()
-    cmu_add_flag_if_supported(
-      "--coverage" CMU_HAVE_COVERAGE_FLAG
-      CMU_FLAGS_COVERAGE
-    )
+    cmu_add_flag_if_supported("--coverage" CMU_HAVE_COVERAGE_FLAG
+                              CMU_FLAGS_COVERAGE)
   endif()
 
   if(CMU_OS_POSIX)
@@ -181,38 +173,29 @@ elseif(CMU_COMP_GNUC)
     endif()
   endif()
 
-  cmu_add_flag_if_supported(
-    "-fexcess-precision=standard"
-    CMU_HAVE_FP_NO_EXCESS_PRECISION CMU_FLAGS_FP_IEEE
-  )
-  cmu_add_flag_if_supported(
-    "-fno-fast-math" CMU_HAVE_FNO_FAST_MATH
-    CMU_FLAGS_FP_IEEE
-  )
-  cmu_add_flag_if_supported(
-    "-ffp-contract=off" CMU_HAVE_FNO_FFP_CONTRACT
-    CMU_FLAGS_FP_IEEE
-  )
+  cmu_add_flag_if_supported("-fexcess-precision=standard"
+                            CMU_HAVE_FP_NO_EXCESS_PRECISION CMU_FLAGS_FP_IEEE)
+  cmu_add_flag_if_supported("-fno-fast-math" CMU_HAVE_FNO_FAST_MATH
+                            CMU_FLAGS_FP_IEEE)
+  cmu_add_flag_if_supported("-ffp-contract=off" CMU_HAVE_FNO_FFP_CONTRACT
+                            CMU_FLAGS_FP_IEEE)
 
   if(CMU_ARCH_X86)
-    # When IEEE fp compliance is requested, SSE2 is implicitly enabled as
-    # well, for more info see here:
-    # https://gcc.gnu.org/wiki/FloatingPointMath#x86note
+    # When IEEE fp compliance is requested, SSE2 is implicitly enabled as well,
+    # for more info see here: https://gcc.gnu.org/wiki/FloatingPointMath#x86note
     set(msse2)
     if(CMU_BITS_32)
       set(msse2 "-msse2;")
     endif()
-    cmu_add_flag_if_supported("${msse2}-mfpmath=sse" CMU_HAVE_FPMATH_SSE CMU_FLAGS_FP_IEEE)
+    cmu_add_flag_if_supported("${msse2}-mfpmath=sse" CMU_HAVE_FPMATH_SSE
+                              CMU_FLAGS_FP_IEEE)
   endif()
 
-  set(
-    CMU_FLAGS_FP_FAST
-    -ffp-contract=fast
-    -fno-math-errno
-    -fno-trapping-math
-  )
-  cmu_add_flag_if_supported("-fexcess-precision=fast" CMU_HAVE_FACCESS_PRECISION_FAST CMU_FLAGS_FP_FAST)
-  cmu_add_flag_if_supported("-fcx-limited-range" CMU_HAVE_FCX_LIMITED_RANGE CMU_FLAGS_FP_FAST)
+  set(CMU_FLAGS_FP_FAST -ffp-contract=fast -fno-math-errno -fno-trapping-math)
+  cmu_add_flag_if_supported("-fexcess-precision=fast"
+                            CMU_HAVE_FACCESS_PRECISION_FAST CMU_FLAGS_FP_FAST)
+  cmu_add_flag_if_supported("-fcx-limited-range" CMU_HAVE_FCX_LIMITED_RANGE
+                            CMU_FLAGS_FP_FAST)
 
   set(CMU_FLAGS_FP_ASSOC ${CMU_FLAGS_FP_FAST} -funsafe-math-optimizations)
   set(CMU_FLAGS_FP_FINITE -ffast-math)
@@ -245,7 +228,8 @@ elseif(CMU_COMP_GNUC)
 
   if(CMU_COMP_GCC)
     list(
-      APPEND CMU_FLAGS_W3
+      APPEND
+      CMU_FLAGS_W3
       -Wcast-align
       -Wcast-qual
       -Wchar-subscripts
@@ -286,11 +270,11 @@ elseif(CMU_COMP_GNUC)
       -Wunused-variable
       -Wvariadic-macros
       -Wvolatile-register-var
-      -Wwrite-strings
-    )
+      -Wwrite-strings)
   elseif(CMU_COMP_INTEL)
     list(
-      APPEND CMU_FLAGS_W3
+      APPEND
+      CMU_FLAGS_W3
       -Wcast-qual
       -Wchar-subscripts
       -Wcomment
@@ -318,11 +302,11 @@ elseif(CMU_COMP_GNUC)
       -Wunused-function
       -Wunused-parameter
       -Wunused-variable
-      -Wwrite-strings
-    )
+      -Wwrite-strings)
   elseif(CMU_COMP_CLANG)
     list(
-      APPEND CMU_FLAGS_W3
+      APPEND
+      CMU_FLAGS_W3
       -Weverything
       -Wno-c++98-compat
       -Wno-c++98-compat-pedantic
@@ -342,14 +326,9 @@ elseif(CMU_COMP_GNUC)
       -Wno-assume
       -Wno-disabled-macro-expansion
       -Wno-reserved-id-macro
-      -Wno-declaration-after-statement
-    )
-    list(
-      APPEND CMU_FLAGS_CXX_W3
-      -Wno-return-std-move-in-c++11
-      -Wno-unknown-warning-option
-      -Wno-shadow-field-in-constructor
-    )
+      -Wno-declaration-after-statement)
+    list(APPEND CMU_FLAGS_CXX_W3 -Wno-return-std-move-in-c++11
+         -Wno-unknown-warning-option -Wno-shadow-field-in-constructor)
   endif()
   set(CMU_FLAGS_W4 "${CMU_FLAGS_W3}")
   set(CMU_FLAGS_C_W4 "${CMU_FLAGS_C_W3}")
@@ -363,34 +342,17 @@ endif()
 macro(cmu_replace_global_cmake_flags pat repl)
   set(types ${CMAKE_CONFIGURATION_TYPES})
   if(NOT types)
-    set(
-      types
-      DEBUG
-      RELEASE
-      RELWITHDEBINFO
-      MINSIZEREL
-    )
+    set(types DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
   endif()
 
   foreach(ty "" ${types})
     if(ty)
       set(ty "_${ty}")
     endif()
-    foreach(
-      pref
-      ""
-      _C_FLAGS
-      _CXX_FLAGS
-    )
+    foreach(pref "" _C_FLAGS _CXX_FLAGS)
       set(v "CMAKE${pref}${ty}")
       if(DEFINED "${v}")
-        string(
-          REGEX
-          REPLACE "${pat}"
-          "${repl}"
-          "${v}"
-          "${${v}}"
-        )
+        string(REGEX REPLACE "${pat}" "${repl}" "${v}" "${${v}}")
       endif()
     endforeach()
   endforeach()
@@ -399,26 +361,14 @@ endmacro()
 macro(cmu_add_global_cmake_linker_flags)
   set(types ${CMAKE_CONFIGURATION_TYPES})
   if(NOT types)
-    set(
-      types
-      DEBUG
-      RELEASE
-      RELWITHDEBINFO
-      MINSIZEREL
-    )
+    set(types DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
   endif()
 
   foreach(ty "" ${types})
     if(ty)
       set(ty "_${ty}")
     endif()
-    foreach(
-      kind
-      EXE
-      SHARED
-      STATIC
-      MODULE
-    )
+    foreach(kind EXE SHARED STATIC MODULE)
       set(v "CMAKE_${kind}_LINKER_FLAGS${ty}")
       list(APPEND "${v}" ${ARGN})
     endforeach()
@@ -468,25 +418,14 @@ endmacro()
 macro(cmu_add_global_cmake_flags flags)
   set(types ${CMAKE_CONFIGURATION_TYPES})
   if(NOT types)
-    set(
-      types
-      DEBUG
-      RELEASE
-      RELWITHDEBINFO
-      MINSIZEREL
-    )
+    set(types DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
   endif()
 
   foreach(ty "" ${types})
     if(ty)
       set(ty "_${ty}")
     endif()
-    foreach(
-      pref
-      ""
-      _C_FLAGS
-      _CXX_FLAGS
-    )
+    foreach(pref "" _C_FLAGS _CXX_FLAGS)
       set(v "CMAKE${pref}${ty}")
       if(DEFINED ${v})
         set($v "${${v}} ${flags}")
@@ -505,10 +444,8 @@ macro(cmu_configure_preferred_linkers)
       list(APPEND CMU_LINK_FLAGS "-fuse-ld=${ld}")
       set(CMU_LINKER ${ld})
     elseif(NOT CMU_LINKER AND CMU_COMP_GNUC)
-      cmu_add_flag_if_supported(
-        "-fuse-ld=${ld}" "CMU_HAVE_LD_${ld}"
-        CMU_LINK_FLAGS
-      )
+      cmu_add_flag_if_supported("-fuse-ld=${ld}" "CMU_HAVE_LD_${ld}"
+                                CMU_LINK_FLAGS)
       if(CMU_HAVE_LD_${ld})
         set(CMU_LINKER ${ld})
       endif()
@@ -611,22 +548,16 @@ macro(cmu_configure)
 
   if(CMU_STACK_PROTECTION)
     if(CMU_COMP_GNUC)
-      cmu_add_flag_if_supported(
-        "-fstack-protector-strong"
-        CMU_HAVE_STACK_PROTECTOR_STRONG CMU_FLAGS
-      )
+      cmu_add_flag_if_supported("-fstack-protector-strong"
+                                CMU_HAVE_STACK_PROTECTOR_STRONG CMU_FLAGS)
 
       if(NOT CMU_HAVE_STACK_PROTECTOR_STRONG)
-        cmu_add_flag_if_supported(
-          "-fstack-protector" CMU_HAVE_STACK_PROTECTOR
-          CMU_FLAGS
-        )
+        cmu_add_flag_if_supported("-fstack-protector" CMU_HAVE_STACK_PROTECTOR
+                                  CMU_FLAGS)
       endif()
 
-      cmu_add_flag_if_supported(
-        "-fstack-clash-protection"
-        CMU_HAVE_STACK_CLASH_PROTECTION CMU_FLAGS
-      )
+      cmu_add_flag_if_supported("-fstack-clash-protection"
+                                CMU_HAVE_STACK_CLASH_PROTECTION CMU_FLAGS)
     endif()
   endif()
 
@@ -657,7 +588,12 @@ macro(cmu_configure)
       list(APPEND CMU_DEFINES_DEBUG "_LIBCPP_ENABLE_NODISCARD=1")
     endif()
     if(CMU_DEBUG_LIBCPP_DEBUG)
-      list(APPEND CMU_DEFINES_DEBUG "_LIBCPP_DEBUG=1")
+      set(CMU_DEBUG_LIBCPP_DEBUG False)
+      cmu_check_cxx_compiler_flag("-D_LIBCPP_DEBUG=1 -stdlib=libc++"
+                                  CMU_HAVE_LIBCPP_DEBUG "#include <string>")
+      if(CMU_HAVE_LIBCPP_DEBUG)
+        list(APPEND CMU_DEFINES_DEBUG "_LIBCPP_DEBUG=1")
+      endif()
     endif()
   endif()
 endmacro()
