@@ -329,6 +329,8 @@ elseif(CMU_COMP_GNUC)
       -Wno-declaration-after-statement)
     list(APPEND CMU_FLAGS_CXX_W3 -Wno-return-std-move-in-c++11
          -Wno-unknown-warning-option -Wno-shadow-field-in-constructor)
+    cmu_add_flag_if_supported("-Wno-c++20-compat" "CMU_HAVE_WNO_CXX20_COMPAT"
+                              CMU_FLAGS_CXX_W3)
   endif()
   set(CMU_FLAGS_W4 "${CMU_FLAGS_W3}")
   set(CMU_FLAGS_C_W4 "${CMU_FLAGS_C_W3}")
