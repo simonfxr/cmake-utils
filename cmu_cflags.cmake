@@ -331,6 +331,8 @@ elseif(CMU_COMP_GNUC)
          -Wno-unknown-warning-option -Wno-shadow-field-in-constructor)
     cmu_add_flag_if_supported("-Wno-c++20-compat" "CMU_HAVE_WNO_CXX20_COMPAT"
                               CMU_FLAGS_CXX_W3)
+    cmu_add_flag_if_supported("-Wno-unsafe-buffer-usage" "CMU_HAVE_WNO_UNSAFE_BUFFER_USAGE"
+                              CMU_FLAGS_CXX_W3)
   endif()
   set(CMU_FLAGS_W4 "${CMU_FLAGS_W3}")
   set(CMU_FLAGS_C_W4 "${CMU_FLAGS_C_W3}")
@@ -446,8 +448,8 @@ macro(cmu_configure_preferred_linkers)
       list(APPEND CMU_LINK_FLAGS "-fuse-ld=${ld}")
       set(CMU_LINKER ${ld})
     elseif(NOT CMU_LINKER AND CMU_COMP_GNUC)
-      cmu_add_flag_if_supported("-fuse-ld=${ld}" "CMU_HAVE_LD_${ld}"
-                                CMU_LINK_FLAGS)
+      cmu_add_linker_flag_if_supported("-fuse-ld=${ld}" "CMU_HAVE_LD_${ld}"
+        CMU_LINK_FLAGS)
       if(CMU_HAVE_LD_${ld})
         set(CMU_LINKER ${ld})
       endif()

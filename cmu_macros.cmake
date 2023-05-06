@@ -135,8 +135,16 @@ if(CMU_LANG_C)
     unset(_CheckCCompilerFlag_COMMON_PATTERNS)
     set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
   endmacro()
+
+  macro(cmu_check_c_linker_flag _FLAG _RESULT)
+     check_linker_flag(C ${_FLAG} ${_RESULT})
+  endmacro()
 else()
   macro(cmu_check_c_compiler_flag _FLAG _RESULT)
+
+  endmacro()
+
+  macro(cmu_check_c_linker_flag _FLAG _RESULT)
 
   endmacro()
 endif()
@@ -182,9 +190,17 @@ if(CMU_LANG_CXX)
     unset(_CheckCXXCompilerFlag_COMMON_PATTERNS)
     set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
   endmacro()
+
+  macro(cmu_check_cxx_linker_flag _FLAG _RESULT)
+     check_linker_flag(CXX ${_FLAG} ${_RESULT})
+  endmacro()
 else()
   macro(cmu_check_cxx_compiler_flag _FLAG _RESULT _PREFIX)
 
+  endmacro()
+
+  macro(cmu_check_cxx_linker_flag _FLAG _RESULT)
+     check_linker_flag(C ${_FLAG} ${_RESULT})
   endmacro()
 endif()
 
@@ -198,6 +214,21 @@ endmacro()
 
 macro(cmu_add_flag_if_supported flag var list)
   cmu_check_compiler_flag("${flag}" ${var} ${ARGN})
+  if(${var})
+    list(APPEND ${list} "${flag}")
+  endif()
+endmacro()
+
+macro(cmu_check_linker_flag flag var)
+  if(CMU_LANG_CXX)
+    cmu_check_cxx_linker_flag("${flag}" ${var} ${ARGN})
+  else()
+    cmu_check_c_linker_flag("${flag}" ${var} ${ARGN})
+  endif()
+endmacro()
+
+macro(cmu_add_linker_flag_if_supported flag var list)
+  cmu_check_linker_flag("${flag}" ${var} ${ARGN})
   if(${var})
     list(APPEND ${list} "${flag}")
   endif()
