@@ -328,7 +328,8 @@ elseif(CMU_COMP_GNUC)
       -Wno-assume
       -Wno-disabled-macro-expansion
       -Wno-reserved-id-macro
-      -Wno-declaration-after-statement)
+      -Wno-declaration-after-statement
+      -Wno-switch-default)
     list(APPEND CMU_FLAGS_CXX_W3 -Wno-return-std-move-in-c++11
          -Wno-unknown-warning-option -Wno-shadow-field-in-constructor)
     cmu_add_flag_if_supported("-Wno-c++20-compat" "CMU_HAVE_WNO_CXX20_COMPAT"
