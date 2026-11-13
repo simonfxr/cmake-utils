@@ -1,5 +1,7 @@
 # if(COMMAND include_guard) include_guard(GLOBAL) endif()
 
+include(CheckLinkerFlag)
+
 macro(cmu_target_link_options target mode)
   if(COMMAND target_link_options)
     target_link_options(${target} ${mode} ${ARGN})
@@ -125,8 +127,8 @@ if(CMU_LANG_C)
       FAIL_REGEX
       "ignoring unknown option" # ICC
       "option .* not supported" # ICC
-      "command line option .* is valid for .* but not for C\\\\+\\\\+" # GNU
-      ${_CheckCXXCompilerFlag_COMMON_PATTERNS})
+      "command line option .* is valid for .* but not for C[+][+]" # GNU
+      ${_CheckCCompilerFlag_COMMON_PATTERNS})
     foreach(v ${_CheckCCompilerFlag_LOCALE_VARS})
       set(ENV{${v}} ${_CheckCCompilerFlag_SAVED_${v}})
       unset(_CheckCCompilerFlag_SAVED_${v})
@@ -137,7 +139,7 @@ if(CMU_LANG_C)
   endmacro()
 
   macro(cmu_check_c_linker_flag _FLAG _RESULT)
-     check_linker_flag(C ${_FLAG} ${_RESULT})
+    check_linker_flag(C "${_FLAG}" ${_RESULT})
   endmacro()
 else()
   macro(cmu_check_c_compiler_flag _FLAG _RESULT)
@@ -180,7 +182,7 @@ if(CMU_LANG_CXX)
       FAIL_REGEX
       "ignoring unknown option" # ICC
       "option .* not supported" # ICC
-      "command line option .* is valid for .* but not for C\\\\+\\\\+" # GNU
+      "command line option .* is valid for .* but not for C[+][+]" # GNU
       ${_CheckCXXCompilerFlag_COMMON_PATTERNS})
     foreach(v ${_CheckCXXCompilerFlag_LOCALE_VARS})
       set(ENV{${v}} ${_CheckCXXCompilerFlag_SAVED_${v}})
@@ -192,7 +194,7 @@ if(CMU_LANG_CXX)
   endmacro()
 
   macro(cmu_check_cxx_linker_flag _FLAG _RESULT)
-     check_linker_flag(CXX ${_FLAG} ${_RESULT})
+    check_linker_flag(CXX "${_FLAG}" ${_RESULT})
   endmacro()
 else()
   macro(cmu_check_cxx_compiler_flag _FLAG _RESULT _PREFIX)

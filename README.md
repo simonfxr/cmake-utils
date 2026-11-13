@@ -57,3 +57,18 @@ combinations, no need for all the `if(${ARCH} AND ${OS} AND ${COMPILER} AND
 ${COMPILER_VERSION} VERSIONGREATER ...)` nonsense.
 
 Contributions welcome :-)
+
+## Compatibility checks
+
+CMake 3.18 or newer is required. On Linux with GCC or Clang, run the compiler
+and linker flag regression checks and build the debug smoke test with:
+
+```sh
+cmake -S tests -B build-checks -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+cmake --build build-checks
+ctest --test-dir build-checks --output-on-failure
+```
+
+Use `clang` and `clang++` to also check libc++ debug hardening (libc++ must be
+installed). On CMake 4.4 or newer, the checks cover preservation of backslashes
+in source prefixes under CMP0219.

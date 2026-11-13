@@ -1,7 +1,5 @@
 # if(COMMAND include_guard) include_guard(GLOBAL) endif()
 
-cmake_minimum_required(VERSION 3.9)
-
 set(CMU_OPT_LEVEL 2)
 set(CMU_OPT_NATIVE False)
 set(CMU_IPO True)
@@ -607,7 +605,15 @@ macro(cmu_configure)
       endif()
     endif()
     if(CMU_DEBUG_LIBCPP_ASSERTIONS)
-      list(APPEND CMU_DEFINES_DEBUG "_LIBCPP_ENABLE_ASSERTIONS=1")
+      cmu_check_cxx_compiler_flag(
+        "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -stdlib=libc++"
+        CMU_HAVE_LIBCPP_HARDENING_MODE "#include <string>")
+      if(CMU_HAVE_LIBCPP_HARDENING_MODE)
+        list(APPEND CMU_DEFINES_DEBUG
+          "_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE")
+      else()
+        list(APPEND CMU_DEFINES_DEBUG "_LIBCPP_ENABLE_ASSERTIONS=1")
+      endif()
     endif()
   endif()
 endmacro()
